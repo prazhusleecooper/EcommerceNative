@@ -1,13 +1,8 @@
 import React, { Component } from 'react';
-import {Text, View, StyleSheet, Button, TextInput, ScrollView, FlatList, SafeAreaView} from 'react-native';
-import {ScreenContainer} from 'react-native-screens';
+import {Text, View, StyleSheet, TextInput, FlatList, SafeAreaView} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { Avatar, Card, Title, Paragraph } from 'react-native-paper';
-// const ScreenContainer = ({ children }) =>{
-//
-// };
-
-
+import { Card, Title, Paragraph } from 'react-native-paper';
+import { Button } from 'react-native-paper';
 const DATA = [
     {
         id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
@@ -20,275 +15,138 @@ const DATA = [
     {
         id: '58694a0f-3da1-471f-bd96-145571e29d72',
         title: 'Third Item',
-    },    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
-    },    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
-    },    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
-    },    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
-    },    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
-    },    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
-    },    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
-    },    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
-    },    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
-    },    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
-    },    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
-    },    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
-    },    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
+    },
+];
+
+const categories = [
+    {
+        id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
+        categoryTitle: 'Fruits',
+    },
+    {
+        id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
+        categoryTitle: 'Vegetables',
     },
     {
         id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
-    },
-    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
-    },
-    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
-    },
-    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
-    },
-    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
-    },
-    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
-    },
-    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
-    },
-    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
-    },
-    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
-    },
-    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
-    },
-    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
-    },
-    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
-    },
-    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
-    },
-    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
-    },
-    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
-    },
-    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
-    },
-    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
-    },
-    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
-    },
-    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
-    },
-    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
-    },
-    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
-    },
-    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
-    },
-    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
-    },
-    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
-    },
-    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
-    },
-    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
-    },
-    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
-    },
-    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
-    },
-    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
-    },
-    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
-    },
-    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
-    },
-    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
-    },
-    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
-    },
-    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
-    },
-    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
-    },
-    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
-    },
-    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
-    },
-    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
-    },
-    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
-    },
-    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
-    },
-    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
-    },
-    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
-    },
-    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
-    },
-    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
+        categoryTitle: 'Appliances',
     },
 ];
 
 export class Home extends Component{
     constructor(props) {
         super(props);
+        console.log('THE APP HAS STARTED');
+        this.state = {
+            homeItems: [],
+            homeCategories: [],
+        }
 
     }
+
+    // Rendering methods
+    // Renders the products in the Home page
+    homePageProducts = () => {
+      if(this.state.homeItems !== [] || this.state.homeItems.length !== 0) {
+          return(
+              <FlatList
+                  data={this.state.homeCategories}
+                  renderItem={({ item }) =>
+                      <SafeAreaView>
+                          <View style={styles.yellowHR} />
+                          <Text style={styles.productCategory}>{ item.categoryName }</Text>
+                          <FlatList data={this.state.homeItems} renderItem={({ item }) =>
+                              <SafeAreaView>
+                                  <Card style={styles.cardStyle}>
+                                      <Card.Content style={styles.cardTitleArea}>
+                                          <Title style={styles.cardTitle}>
+                                              { item.title }
+                                          </Title>
+                                      </Card.Content>
+                                      <Card.Cover source={{ uri: 'https://picsum.photos/700' }} />
+                                      <Card.Content style={styles.productDescriptionArea}>
+                                          <Paragraph style={styles.productDescription}>
+                                              { item.description }
+                                          </Paragraph>
+                                      </Card.Content>
+                                      <View style={styles.cardHR} />
+                                      <Card.Actions >
+                                          <SafeAreaView>
+                                              <Text style={styles.productPrice}>Rs.</Text>
+                                              <Text style={styles.productPriceAmount}>{ item.price }</Text>
+                                          </SafeAreaView>
+                                          <Button
+                                              icon='cart'
+                                              mode='contained'
+                                              color='#e5b700'
+                                              dark={true}
+                                          >
+                                              Add
+                                          </Button>
+                                      </Card.Actions>
+                                  </Card>
+                              </SafeAreaView>
+                          } />
+                      </SafeAreaView>
+                  }
+                  keyExtractor={item => item.id}
+              />
+          );
+      }
+    };
+
+    // Life-cycle methods
+    componentDidMount = () => {
+        console.log('component did mount method');
+        fetch('http://192.168.1.135:1338/items', {
+            method: 'GET',
+            mode: 'cors',
+            headers: {'Content-Type': 'application/json'}
+        })
+            .then(res => res.json())
+            .then(
+                (result) => {
+                    this.setState({
+                        homeItems: result,
+                    });
+                    console.log('THE RESULT FROM GET ALL ITEMS IS::', this.state.homeItems);
+                },
+                (error) => {
+                    console.log('THE ERROR FROM GET ALL ITEMS IS::', error);
+                }
+            );
+        fetch('http://192.168.1.135:1338/categories', {
+            method: 'GET',
+            mode: 'cors',
+            headers: {'Content-Type': 'application/json'}
+        })
+            .then(res => res.json())
+            .then(
+                (result) => {
+                    console.log('THE RESULT FROM GET ALL Categories IS::', result);
+                    // let tempCategoryArray = [];
+                    // result.map((categoryRecord) => {
+                    //     tempCategoryArray.push(categoryRecord.categoryName);
+                    // });
+                    // console.log('THE CAT ARRAY IS::', tempCategoryArray);
+                    this.setState({
+                        homeCategories: result,
+                    })
+                },
+                (error) => {
+                    console.log('THE ERROR FROM GET ALL CATEGORIES IS::', error);
+                }
+            );
+    };
+
+    componentWillUnmount = () => {
+        console.log('component will unmount');
+    };
+
     render() {
         return(
-            /*<View>
-            <View style={{
-                flex: 1,
-                flexDirection: 'column',
-            }}>
-                <View style={styles.headingFlex}>
-                    <View style={styles.headingSection}>
-                        <Text style={styles.headingText}>
-                            Home
-                        </Text>
-                        <View style={styles.TextInputSectionStyle}>
-                            <TextInput
-                                style={styles.textInputStyle}
-                                placeholder="Search"
-                                underlineColorAndroid="transparent"
-                            />
-                            <Icon name='search' size={25} color='white' style={styles.searchIcon}/>
-                        </View>
-                    </View>
-                </View>
-                <ScrollView>
-                    <Card style={styles.cardStyle}>
-                        <Card.Title title='card-title' subtitle='card sub'/>
-                        <Card.Content>
-                            <Title>
-                                Card TitlE
-                            </Title>
-                            <Paragraph>
-                                The paragraph content
-                            </Paragraph>
-                        </Card.Content>
-                        <Card.Cover source={{ uri: 'https://picsum.photos/700' }} />
-                        <Card.Actions>
-                            <Button  title='OK'/>
-                        </Card.Actions>
-                    </Card>
-                </ScrollView>
-                <View>
-                    <Text>asfasgf</Text>
-                </View>
-            </View>
-            </View>*/
                 <View style={styles.primaryContainer}>
-                    <View style={styles.headingFlexSection} >
+                    <SafeAreaView style={styles.headingFlexSection} >
                         <View style={styles.headingFlex}>
                             <View style={styles.headingSection}>
                                 <Text style={styles.headingText}>
@@ -304,13 +162,9 @@ export class Home extends Component{
                                 </View>
                             </View>
                         </View>
-                    </View>
-                    <SafeAreaView style={styles.safeArea}>
-                    <FlatList
-                        data={DATA}
-                        renderItem={({ item }) => <Text >{item.title}</Text>}
-                        keyExtractor={item => item.id}
-                    />
+                    </SafeAreaView>
+                    <SafeAreaView style={styles.ProductsArea}>
+                        {this.homePageProducts()}
                     </SafeAreaView>
                 </View>
         );
@@ -334,10 +188,11 @@ const styles = StyleSheet.create({
     },
     headingSection: {
         width: '100%',
-        height: 120,
+        height: '100%',
         backgroundColor: '#e5b700',
         justifyContent: 'center',
         alignItems: 'center',
+
     },
     headingText: {
         fontSize: 23,
@@ -364,15 +219,9 @@ const styles = StyleSheet.create({
     searchIcon: {
         marginBottom: 5
     },
-    cardStyle: {
-        width: '45%'
-    },
-    sampleStyle: {
-        position: 'relative',
-    },
     itemsSection: {
         flex: 1,
-        width: '100%',
+        width: '80%',
         flexWrap: 'wrap',
         height: 100,
         marginTop: 0,
@@ -380,10 +229,66 @@ const styles = StyleSheet.create({
     scrollview: {
         // paddingTop: 120,
         // position: 'relative',
-
     },
-    safeArea: {
-        height: '80%'
+    yellowHR: {
+        borderBottomColor: '#e5b700',
+        borderBottomWidth: 1,
+        marginHorizontal: 10,
+        marginVertical: 5
+    },
+    ProductsArea: {
+        height: '80%',
+        position: 'relative',
+    },
+    productCategory: {
+        marginTop: 5,
+        marginBottom: 10,
+        marginLeft: 10,
+        color: '#b38f00',
+        fontWeight: 'bold',
+        fontSize: 30,
+    },
+    cardStyle: {
+        marginHorizontal: 10,
+        marginVertical: 7,
+        borderRadius: 0,
+        borderBottomRightRadius: 25,
+    },
+    cardTitleArea: {
+        backgroundColor: '#e5b700',
+    },
+    cardTitle: {
+        color: 'white',
+        marginTop: -5,
+        marginBottom: 10,
+        fontSize: 20
+    },
+    productDescriptionArea: {
+        marginTop: 5,
+        marginBottom: 10,
+    },
+    productDescription: {
+        fontSize: 15,
+        lineHeight: 20
+    },
+    cardHR: {
+        borderBottomColor: '#ffeb99',
+        borderBottomWidth: 1,
+        marginHorizontal: 10,
+        marginVertical: 5
+    },
+    productPrice: {
+        color: '#e5b700',
+        fontSize: 18,
+        marginRight: '72%',
+    },
+    productPriceAmount: {
+        color: '#b38f00',
+        fontSize: 25,
+        fontWeight: 'bold',
+    },
+    addBtn: {
+        marginRight: '10%',
     }
 });
 
