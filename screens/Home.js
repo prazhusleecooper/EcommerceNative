@@ -1,99 +1,219 @@
 import React, { Component } from 'react';
-import {Text, View, StyleSheet, TextInput, FlatList, SafeAreaView} from 'react-native';
+import { Text, View, StyleSheet, TextInput, FlatList, SafeAreaView, Modal } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Card, Title, Paragraph } from 'react-native-paper';
 import { Button } from 'react-native-paper';
-const DATA = [
-    {
-        id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
-        title: 'First Item',
-    },
-    {
-        id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
-        title: 'Second Item',
-    },
-    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
-    },
-];
 
-const categories = [
-    {
-        id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
-        categoryTitle: 'Fruits',
-    },
-    {
-        id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
-        categoryTitle: 'Vegetables',
-    },
-    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        categoryTitle: 'Appliances',
-    },
-];
+let Spinner = require('react-native-spinkit');
 
 export class Home extends Component{
     constructor(props) {
         super(props);
-        console.log('THE APP HAS STARTED');
         this.state = {
             homeItems: [],
             homeCategories: [],
-        }
+            currentCategory: '',
+            searchQuery: '',
+        };
+        console.log('THE APP HAS STARTED::', this.state.searchQuery);
 
     }
 
     // Rendering methods
     // Renders the products in the Home page
     homePageProducts = () => {
-      if(this.state.homeItems !== [] || this.state.homeItems.length !== 0) {
-          return(
-              <FlatList
-                  data={this.state.homeCategories}
-                  renderItem={({ item }) =>
-                      <SafeAreaView>
-                          <View style={styles.yellowHR} />
-                          <Text style={styles.productCategory}>{ item.categoryName }</Text>
-                          <FlatList data={this.state.homeItems} renderItem={({ item }) =>
-                              <SafeAreaView>
-                                  <Card style={styles.cardStyle}>
-                                      <Card.Content style={styles.cardTitleArea}>
-                                          <Title style={styles.cardTitle}>
-                                              { item.title }
-                                          </Title>
-                                      </Card.Content>
-                                      <Card.Cover source={{ uri: 'https://picsum.photos/700' }} />
-                                      <Card.Content style={styles.productDescriptionArea}>
-                                          <Paragraph style={styles.productDescription}>
-                                              { item.description }
-                                          </Paragraph>
-                                      </Card.Content>
-                                      <View style={styles.cardHR} />
-                                      <Card.Actions >
-                                          <SafeAreaView>
-                                              <Text style={styles.productPrice}>Rs.</Text>
-                                              <Text style={styles.productPriceAmount}>{ item.price }</Text>
-                                          </SafeAreaView>
-                                          <Button
-                                              icon='cart'
-                                              mode='contained'
-                                              color='#e5b700'
-                                              dark={true}
-                                          >
-                                              Add
-                                          </Button>
-                                      </Card.Actions>
-                                  </Card>
-                              </SafeAreaView>
-                          } />
-                      </SafeAreaView>
-                  }
-                  keyExtractor={item => item.id}
-              />
-          );
-      }
+        if(this.state.homeItems === 0 || this.state.homeItems.length === 0) {
+            return(
+                <SafeAreaView>
+                    <Text style={styles.loadingText}>
+                        Stocking the shelves ...
+                        {'\n'}
+                    </Text>
+                    <Spinner
+                        isVisible={true}
+                        size={100}
+                        type={'9CubeGrid'}
+                        color={'#e5b700'}
+                        style={styles.loadingSpinner}
+                    />
+                </SafeAreaView>
+            );
+        } else if(this.state.searchQuery !== '') {
+            if(this.searchFilter() === [] || this.searchFilter().length === 0) {
+                return(
+                    <Text style={styles.searchEmptyText}>
+                        No products found :(
+                        {'\n'}
+                        <Text style={styles.searchEmptyTextInstruction}>
+                            Please refine your search
+                        </Text>
+                    </Text>
+
+                );
+            } else if(this.searchFilter() !== [] || this.searchFilter().length !== 0) {
+                return(
+                    <SafeAreaView>
+                        <Text style={styles.productCategory}>
+                            Search Results
+                        </Text>
+                        <FlatList data={this.searchFilter()}
+                                  renderItem={({ item }) =>
+                                      <SafeAreaView>
+                                          <Card style={styles.cardStyle}>
+                                              <Card.Content style={styles.cardTitleArea}>
+                                                  <Title style={styles.cardTitle}>
+                                                      { item.title }
+                                                  </Title>
+                                              </Card.Content>
+                                              <Card.Cover source={{ uri: item.img[0] }} />
+                                              <Card.Content style={styles.productDescriptionArea}>
+                                                  <Paragraph style={styles.productDescription}>
+                                                      { item.description }
+                                                  </Paragraph>
+                                              </Card.Content>
+                                              <View style={styles.cardHR} />
+                                              <Card.Actions >
+                                                  <SafeAreaView>
+                                                      <Text style={styles.productPrice}>Rs.</Text>
+                                                      <Text style={styles.productPriceAmount}>{ item.price }</Text>
+                                                  </SafeAreaView>
+                                                  <Button
+                                                      icon='cart'
+                                                      mode='contained'
+                                                      color='#e5b700'
+                                                      dark={true}
+                                                      onPress={() => console.log('THE VAL:::', this.state.searchQuery)}
+                                                  >
+                                                      Add
+                                                  </Button>
+                                              </Card.Actions>
+                                          </Card>
+                                          <SafeAreaView
+                                              style={{
+                                                  borderBottomColor: '#ffeb99',
+                                                  borderBottomWidth: 1,
+                                                  marginHorizontal: 10,
+                                                  marginTop: 20,
+                                                  marginBottom: 25
+                                              }}
+                                          />
+                                      </SafeAreaView>
+                                  } />
+
+                    </SafeAreaView>
+                );
+            }
+        } else if(this.state.searchQuery === '' || this.state.homeItems !== [] || this.state.homeItems.length !== 0) {
+            return(
+                <FlatList
+                    data={this.state.homeCategories}
+                    renderItem={({ item }) =>
+                        <SafeAreaView>
+                            <View style={styles.yellowHR} />
+                            <Text style={styles.productCategory}>
+                                { this.setCurrentCategory(item.categoryName) }
+                                { item.categoryName }
+                            </Text>
+                            <FlatList data={this.productsDisplayFilter()} renderItem={({ item }) =>
+                                <SafeAreaView>
+                                    <Card style={styles.cardStyle}>
+                                        <Card.Content style={styles.cardTitleArea}>
+                                            <Title style={styles.cardTitle}>
+                                                { item.title }
+                                            </Title>
+                                        </Card.Content>
+                                        <Card.Cover source={{ uri: item.img[0] }} />
+                                        <Card.Content style={styles.productDescriptionArea}>
+                                            <Paragraph style={styles.productDescription}>
+                                                { item.description }
+                                            </Paragraph>
+                                        </Card.Content>
+                                        <View style={styles.cardHR} />
+                                        <Card.Actions >
+                                            <SafeAreaView>
+                                                <Text style={styles.productPrice}>Rs.</Text>
+                                                <Text style={styles.productPriceAmount}>{ item.price }</Text>
+                                            </SafeAreaView>
+                                            <Button
+                                                icon='cart'
+                                                mode='contained'
+                                                color='#e5b700'
+                                                dark={true}
+                                                onPress={() => console.log('THE VAL:::', this.state.searchQuery)}
+                                            >
+                                                Add
+                                            </Button>
+                                        </Card.Actions>
+                                    </Card>
+                                </SafeAreaView>
+                            } />
+                        </SafeAreaView>
+                    }
+                    keyExtractor={item => item.id}
+                />
+            );
+        }
     };
+
+    // Filter the products according to the category for rendering in the Flat-list
+    productsDisplayFilter = () => {
+        let filteredArray = [];
+        this.state.homeItems.map((item) => {
+           if(item.category === this.state.currentCategory) {
+               filteredArray.push(item);
+           }
+        });
+        return filteredArray;
+    };
+
+    // Filter the products based on the search query
+    searchFilter = () => {
+      let searchResults = [];
+      this.state.homeItems.map((item) => {
+          if(item.title.toUpperCase().includes(this.state.searchQuery.toUpperCase())) {
+              searchResults.push(item);
+          }
+      });
+      return searchResults;
+    };
+
+    searchBarIcon = () => {
+        if(this.state.searchQuery === '') {
+            return (
+                <Icon
+                    name='search'
+                    size={25}
+                    color='white'
+                    style={styles.searchIcon}
+                />
+            );
+        } else if(this.state.searchQuery !== '') {
+            return (
+                <Icon
+                    name='times'
+                    size={30}
+                    color='white'
+                    style={styles.timesIcon}
+                    onPress={() => this.clearSearchQuery()}
+                />
+            );
+        }
+    };
+
+    // Non-rendering methods
+    // Method to set the current category while rendering the categories and the products
+    setCurrentCategory = (categoryName) => {
+        this.state.currentCategory = categoryName;
+    };
+
+    // Method to clear the text entered in the search Input box when the 'X' icon is pressed
+    clearSearchQuery = () => {
+        this.setState({
+            searchQuery: '',
+        });
+    };
+
+
 
     // Life-cycle methods
     componentDidMount = () => {
@@ -109,7 +229,6 @@ export class Home extends Component{
                     this.setState({
                         homeItems: result,
                     });
-                    console.log('THE RESULT FROM GET ALL ITEMS IS::', this.state.homeItems);
                 },
                 (error) => {
                     console.log('THE ERROR FROM GET ALL ITEMS IS::', error);
@@ -157,8 +276,11 @@ export class Home extends Component{
                                         style={styles.textInputStyle}
                                         placeholder="Search"
                                         underlineColorAndroid="transparent"
+                                        value={this.state.searchQuery}
+                                        onChangeText={searchQuery => this.setState({searchQuery})}
                                     />
-                                    <Icon name='search' size={25} color='white' style={styles.searchIcon}/>
+                                    {/*<Icon name='search' size={25} color='white' style={styles.searchIcon}/>*/}
+                                    {this.searchBarIcon()}
                                 </View>
                             </View>
                         </View>
@@ -169,7 +291,7 @@ export class Home extends Component{
                 </View>
         );
     }
-};
+}
 
 const styles = StyleSheet.create({
     primaryContainer: {
@@ -218,6 +340,9 @@ const styles = StyleSheet.create({
     },
     searchIcon: {
         marginBottom: 5
+    },
+    timesIcon: {
+        marginBottom: 2
     },
     itemsSection: {
         flex: 1,
@@ -289,6 +414,34 @@ const styles = StyleSheet.create({
     },
     addBtn: {
         marginRight: '10%',
+    },
+    searchEmptyText: {
+        marginTop: 25,
+        marginBottom: 10,
+        marginLeft: 10,
+        color: '#b38f00',
+        fontWeight: 'bold',
+        fontSize: 30,
+    },
+    searchEmptyTextInstruction: {
+        marginLeft: 10,
+        color: 'grey',
+        fontWeight: 'bold',
+        fontSize: 20,
+    },
+    // Loading
+    // Loading screen Text
+    loadingText: {
+        marginVertical: 15,
+        marginLeft: 10,
+        color: 'grey',
+        fontWeight: 'bold',
+        fontSize: 25,
+    },
+    // Loading Spinner / Loading animation
+    loadingSpinner: {
+        marginVertical: 45,
+        marginHorizontal: '38%'
     }
 });
 
