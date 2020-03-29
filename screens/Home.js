@@ -1,28 +1,65 @@
 import React, { Component } from 'react';
-import { Text, View, StyleSheet, TextInput, FlatList, SafeAreaView, Modal } from 'react-native';
+import {
+    Text,
+    View,
+    StyleSheet,
+    TextInput,
+    FlatList,
+    SafeAreaView,
+    Modal,
+} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { Card, Title, Paragraph } from 'react-native-paper';
+import { Card, Title, Paragraph, Checkbox } from 'react-native-paper';
 import { Button } from 'react-native-paper';
+import SyncStorage from 'sync-storage';
 
 let Spinner = require('react-native-spinkit');
 
-export class Home extends Component{
+class Home extends Component{
     constructor(props) {
         super(props);
         this.state = {
             homeItems: [],
             homeCategories: [],
+            categoriesPermanent: [],
             currentCategory: '',
             searchQuery: '',
+            categoriesModalVisible: false,
+            checked: true,
+            refreshing: false
         };
-        console.log('THE APP HAS STARTED::', this.state.searchQuery);
-
     }
+
+    // Method to handle refresh
+    handleRefresh = () => {
+        console.log('HOME PAGE REFRESH');
+        this.setState({
+            refreshing: true
+        });
+        let stateCategories = this.state.homeCategories;
+        stateCategories.map((category) => {
+            category.checked = true;
+        });
+        this.setState({
+            homeCategories: stateCategories,
+            refreshing: false
+        });
+    };
 
     // Rendering methods
     // Renders the products in the Home page
     homePageProducts = () => {
-        if(this.state.homeItems === 0 || this.state.homeItems.length === 0) {
+        // let allChecked = this.allCategoriesUnchecked();
+        if(this.allCategoriesUnchecked() === 0){
+            console.log('all cat check:::', this.allCategoriesUnchecked());
+            return(
+                    <SafeAreaView style={styles.noCategoriesTextSection}>
+                        <Text style={styles.noCategoriesText}>
+                            Please select one of the categories to view the products :)
+                        </Text>
+                    </SafeAreaView>
+            );
+        } else if(this.state.homeItems === 0 || this.state.homeItems.length === 0) {
             return(
                 <SafeAreaView>
                     <Text style={styles.loadingText}>
@@ -39,7 +76,7 @@ export class Home extends Component{
                 </SafeAreaView>
             );
         } else if(this.state.searchQuery !== '') {
-            if(this.searchFilter() === [] || this.searchFilter().length === 0) {
+            if(this.searchFilter() === [] || this.searchFilter().length === 0) {           // If search results is empty
                 return(
                     <Text style={styles.searchEmptyText}>
                         No products found :(
@@ -50,7 +87,7 @@ export class Home extends Component{
                     </Text>
 
                 );
-            } else if(this.searchFilter() !== [] || this.searchFilter().length !== 0) {
+            } else if(this.searchFilter() !== [] || this.searchFilter().length !== 0) {     // Rendering search results
                 return(
                     <SafeAreaView>
                         <Text style={styles.productCategory}>
@@ -66,12 +103,18 @@ export class Home extends Component{
                                                   </Title>
                                               </Card.Content>
                                               <Card.Cover source={{ uri: item.img[0] }} />
-                                              <Card.Content style={styles.productDescriptionArea}>
-                                                  <Paragraph style={styles.productDescription}>
+                                              <Card.Content
+                                                  style={styles.productDescriptionArea}
+                                              >
+                                                  <Paragraph
+                                                      style={styles.productDescription}
+                                                  >
                                                       { item.description }
                                                   </Paragraph>
                                               </Card.Content>
-                                              <View style={styles.cardHR} />
+                                              <View
+                                                  style={styles.cardHR}
+                                              />
                                               <Card.Actions >
                                                   <SafeAreaView>
                                                       <Text style={styles.productPrice}>Rs.</Text>
@@ -82,7 +125,7 @@ export class Home extends Component{
                                                       mode='contained'
                                                       color='#e5b700'
                                                       dark={true}
-                                                      onPress={() => console.log('THE VAL:::', this.state.searchQuery)}
+                                                      onPress={() => this.addToCart(item)}
                                                   >
                                                       Add
                                                   </Button>
@@ -103,54 +146,68 @@ export class Home extends Component{
                     </SafeAreaView>
                 );
             }
-        } else if(this.state.searchQuery === '' || this.state.homeItems !== [] || this.state.homeItems.length !== 0) {
+        } else if(this.state.searchQuery === '' || this.state.homeItems !== [] || this.state.homeItems.length !== 0) {      // Default home products display
             return(
                 <FlatList
                     data={this.state.homeCategories}
                     renderItem={({ item }) =>
-                        <SafeAreaView>
-                            <View style={styles.yellowHR} />
-                            <Text style={styles.productCategory}>
-                                { this.setCurrentCategory(item.categoryName) }
-                                { item.categoryName }
-                            </Text>
-                            <FlatList data={this.productsDisplayFilter()} renderItem={({ item }) =>
-                                <SafeAreaView>
-                                    <Card style={styles.cardStyle}>
-                                        <Card.Content style={styles.cardTitleArea}>
-                                            <Title style={styles.cardTitle}>
-                                                { item.title }
-                                            </Title>
-                                        </Card.Content>
-                                        <Card.Cover source={{ uri: item.img[0] }} />
-                                        <Card.Content style={styles.productDescriptionArea}>
-                                            <Paragraph style={styles.productDescription}>
-                                                { item.description }
-                                            </Paragraph>
-                                        </Card.Content>
-                                        <View style={styles.cardHR} />
-                                        <Card.Actions >
-                                            <SafeAreaView>
-                                                <Text style={styles.productPrice}>Rs.</Text>
-                                                <Text style={styles.productPriceAmount}>{ item.price }</Text>
-                                            </SafeAreaView>
-                                            <Button
-                                                icon='cart'
-                                                mode='contained'
-                                                color='#e5b700'
-                                                dark={true}
-                                                onPress={() => console.log('THE VAL:::', this.state.searchQuery)}
-                                            >
-                                                Add
-                                            </Button>
-                                        </Card.Actions>
-                                    </Card>
-                                </SafeAreaView>
-                            } />
-                        </SafeAreaView>
+                        this.homeProducts(item)
                     }
+                    refreshing={this.state.refreshing}
+                    onRefresh={() => this.handleRefresh()}
                     keyExtractor={item => item.id}
                 />
+            );
+        }
+    };
+
+    // Render default home products based on the categories checked
+    homeProducts = (item) => {
+        if(item.checked) {
+            return(
+                <SafeAreaView>
+                    <View style={styles.yellowHR} />
+                    <Text style={styles.productCategory}>
+                        { this.setCurrentCategory(item.categoryName) }
+                        { item.categoryName }
+                    </Text>
+                    <FlatList
+                        data={this.productsDisplayFilter()}
+                        renderItem={({ item }) =>
+                            <SafeAreaView>
+                                <Card style={styles.cardStyle}>
+                                    <Card.Content style={styles.cardTitleArea}>
+                                        <Title style={styles.cardTitle}>
+                                            { item.title }
+                                        </Title>
+                                    </Card.Content>
+                                    <Card.Cover source={{ uri: item.img[0] }} />
+                                    <Card.Content style={styles.productDescriptionArea}>
+                                        <Paragraph style={styles.productDescription}>
+                                            { item.description }
+                                        </Paragraph>
+                                    </Card.Content>
+                                    <View style={styles.cardHR} />
+                                    <Card.Actions >
+                                        <SafeAreaView>
+                                            <Text style={styles.productPrice}>Rs.</Text>
+                                            <Text style={styles.productPriceAmount}>{ item.price }</Text>
+                                        </SafeAreaView>
+                                        <Button
+                                            icon='cart'
+                                            mode='contained'
+                                            color='#e5b700'
+                                            dark={true}
+                                            onPress={() => this.addTocart(item)}
+                                        >
+                                            Add
+                                        </Button>
+                                    </Card.Actions>
+                                </Card>
+                            </SafeAreaView>
+                        }
+                    />
+                </SafeAreaView>
             );
         }
     };
@@ -199,7 +256,7 @@ export class Home extends Component{
             );
         }
     };
-
+    
     // Non-rendering methods
     // Method to set the current category while rendering the categories and the products
     setCurrentCategory = (categoryName) => {
@@ -213,12 +270,104 @@ export class Home extends Component{
         });
     };
 
+    // Method to toggle the categories modal
+    toggleModal = () => {
+        this.setState({
+            categoriesModalVisible: !this.state.categoriesModalVisible
+        })
+    };
 
+    // Method to toggle the Categories checkbox in the Modal
+    toggleCategories = (categoryName) => {
+        console.log('TOGGLERD DTHASO::', categoryName);
+        this.state.homeCategories.map((category, id) => {
+            if(categoryName === category.categoryName) {
+                this.state.homeCategories[id].checked = !this.state.homeCategories[id].checked;
+                this.setState({});
+                console.log('state modified');
+            }
+        })
+    };
+
+    // Method to check if all the categories are unchecked => none of the  products should be displayed
+    /*
+    * Codes:
+    *   0 - Not all the categories are unchecked / Atleast one category is checked
+    *   1 - All the categories are unchecked
+    * */
+    allCategoriesUnchecked = () => {
+        let flag = 0;
+        this.state.homeCategories.map((category) => {
+           if(category.checked === true) {
+               flag = 1;
+           }
+        });
+        return flag;
+    };
+
+    // Add the item to ASYNC storage
+    addTocart = (item) => {
+        this.popup.show({
+            onPress: function() {console.log('Pressed')},
+            slideOutTime: 5000
+        });
+        console.log('THE ADDED ITssEM IS::', SyncStorage.get('cartItems'));
+        let syncStorageItems = SyncStorage.get('cartItems');
+        if( syncStorageItems === undefined ||
+            syncStorageItems === null ||
+            syncStorageItems === [] ||
+            syncStorageItems.length === 0
+        ) {
+            let tempArray = [];
+            tempArray.push(item);
+            SyncStorage.set('cartItems', tempArray);
+        } else if(
+            syncStorageItems !== undefined ||
+            syncStorageItems !== null ||
+            syncStorageItems !== [] ||
+            syncStorageItems.length > 0
+        ) {
+            let presence = false;
+            syncStorageItems.map((cartItem) => {
+                if(item.uid === cartItem.uid) {
+                    presence = true;
+                    cartItem.quantity += 1;
+                    cartItem.total_price = cartItem.quantity * cartItem.price
+                }
+            });
+            if(presence === false) {
+                syncStorageItems.push(item);
+            }
+            SyncStorage.set('cartItems', syncStorageItems);
+        }
+        console.log('UPDATED CART IS::::++++:::++++::::', SyncStorage.get('cartItems'));
+        /*if (cartAsyncArr === null || cartAsyncArr.length === 0) {
+            let tempArray = [];
+            tempArray.push(item);
+            SyncStorage.set('cartItems', JSON.stringify(tempArray));
+        } else if (cartAsyncArr.length > 0) {
+            let presence = false;
+            cartAsyncArr.map((cartItem) => {
+                if (item.uid === cartItem.uid) {
+                    presence = true;
+                    cartItem.quantity += 1;
+                    cartItem.total_price = cartItem.quantity * cartItem.price
+                }
+            });
+            if (presence === false) {
+                cartAsyncArr.push(item);
+            }
+            SyncStorage.set('cartItems', JSON.stringify(cartAsyncArr));
+        }
+        console.log('GET THE VALUE', SyncStorage.get('cartItems'));*/
+    };
 
     // Life-cycle methods
-    componentDidMount = () => {
+    componentDidMount = async () => {
         console.log('component did mount method');
-        fetch('http://192.168.1.135:1338/items', {
+        let data = await SyncStorage.init();
+        console.log('SYNC STORAGE READY', data);
+        fetch('http://192.168.0.106:1338/items', {
             method: 'GET',
             mode: 'cors',
             headers: {'Content-Type': 'application/json'}
@@ -226,15 +375,18 @@ export class Home extends Component{
             .then(res => res.json())
             .then(
                 (result) => {
+                    console.log('REACHED HERER');
                     this.setState({
                         homeItems: result,
                     });
+                    console.log('THE RES FROM GET ALL ITEMS IS::', result);
+
                 },
                 (error) => {
                     console.log('THE ERROR FROM GET ALL ITEMS IS::', error);
                 }
             );
-        fetch('http://192.168.1.135:1338/categories', {
+        fetch('http://192.168.0.106:1338/categories', {
             method: 'GET',
             mode: 'cors',
             headers: {'Content-Type': 'application/json'}
@@ -242,20 +394,17 @@ export class Home extends Component{
             .then(res => res.json())
             .then(
                 (result) => {
-                    console.log('THE RESULT FROM GET ALL Categories IS::', result);
-                    // let tempCategoryArray = [];
-                    // result.map((categoryRecord) => {
-                    //     tempCategoryArray.push(categoryRecord.categoryName);
-                    // });
-                    // console.log('THE CAT ARRAY IS::', tempCategoryArray);
                     this.setState({
                         homeCategories: result,
-                    })
+                        categoriesPermanent: result,
+                    });
+                    console.log('THE RESULT FROM FETCH ISS:::', result);
                 },
                 (error) => {
                     console.log('THE ERROR FROM GET ALL CATEGORIES IS::', error);
                 }
             );
+        console.log('PROPS ITEMS:::', this.props.addedItems);
     };
 
     componentWillUnmount = () => {
@@ -264,34 +413,114 @@ export class Home extends Component{
 
     render() {
         return(
-                <View style={styles.primaryContainer}>
-                    <SafeAreaView style={styles.headingFlexSection} >
-                        <View style={styles.headingFlex}>
-                            <View style={styles.headingSection}>
-                                <Text style={styles.headingText}>
-                                    Home
-                                </Text>
-                                <View style={styles.TextInputSectionStyle}>
-                                    <TextInput
-                                        style={styles.textInputStyle}
-                                        placeholder="Search"
-                                        underlineColorAndroid="transparent"
-                                        value={this.state.searchQuery}
-                                        onChangeText={searchQuery => this.setState({searchQuery})}
+            <View style={styles.primaryContainer}>
+                <Modal
+                    animationType='slide'
+                    transparent={false}
+                    visible={this.state.categoriesModalVisible}
+                    onRequestClose={() => this.toggleModal()}
+                    style={{
+                        backgroundColor: variables.primaryYellow,
+                        borderTopLeftRadius: 15,
+                        borderTopRightRadius: 15,
+                    }}
+                >
+                    <SafeAreaView
+                        style={styles.modalTitleSection}
+                    >
+                        <SafeAreaView
+                            style={styles.modalTitleFlex}
+                        >
+                            <Text
+                                style={styles.modalTitle}
+                            >
+                                Categories
+                            </Text>
+                            <Icon
+                                name='times'
+                                size={ 35 }
+                                color={ variables.primaryLight }
+                                style={ styles.modalCloseIcon }
+                                onPress={ () => this.toggleModal() }
+                            />
+                        </SafeAreaView>
+                    </SafeAreaView>
+                    <SafeAreaView style={ styles.categoriesPane }>
+                        <SafeAreaView
+                            style={ styles.modalHR }
+                        />
+                        <FlatList
+                            data={ this.state.homeCategories }
+                            renderItem={({ item }) =>
+                                <SafeAreaView
+                                    style={{
+                                        flexDirection: 'row',
+                                    }}
+                                >
+                                    <Checkbox
+                                        status={ item.checked ? 'checked' : 'unchecked' }
+                                        onPress={ () => this.toggleCategories(item.categoryName) }
                                     />
-                                    {/*<Icon name='search' size={25} color='white' style={styles.searchIcon}/>*/}
-                                    {this.searchBarIcon()}
-                                </View>
+                                    <Text style={styles.checkboxText}>
+                                        { item.categoryName }
+                                    </Text>
+                                </SafeAreaView>
+                            }
+
+                        />
+                    </SafeAreaView>
+
+                    <SafeAreaView style={styles.categoriesPaneFooter}>
+                        <Text style={styles.categoriesPaneFooterText}>
+                            Kindly pick the categories that you wish to be displayed :)
+                        </Text>
+                        <Icon
+                            name='shopping-bag'
+                            size={25}
+                            color='white'
+                        />
+                    </SafeAreaView>
+                </Modal>
+                <SafeAreaView style={styles.headingFlexSection} >
+                    <View style={styles.headingFlex}>
+                        <View style={styles.headingSection}>
+                            <Text style={styles.headingText}>
+                                Home
+                            </Text>
+                            <View style={styles.TextInputSectionStyle}>
+                                <TextInput
+                                    style={styles.textInputStyle}
+                                    placeholder="Search"
+                                    underlineColorAndroid="transparent"
+                                    value={this.state.searchQuery}
+                                    onChangeText={searchQuery => this.setState({searchQuery})}
+                                />
+                                {this.searchBarIcon()}
                             </View>
+                            <Button
+                                type='text'
+                                color={variables.primaryLight}
+                                onPress={() => this.toggleModal()}
+                            >
+                                Filter
+                            </Button>
                         </View>
-                    </SafeAreaView>
-                    <SafeAreaView style={styles.ProductsArea}>
-                        {this.homePageProducts()}
-                    </SafeAreaView>
-                </View>
+                    </View>
+                </SafeAreaView>
+                <SafeAreaView style={styles.ProductsArea}>
+                    {this.homePageProducts()}
+                </SafeAreaView>
+            </View>
         );
     }
 }
+
+const variables = {
+    primaryYellow: 'rgb(229, 183, 0)',
+    primaryYellowOpacity: 'rgba(229, 183, 0, 0.8)',
+    primaryYellowDark: '#b38f00',
+    primaryLight: '#ffff',
+};
 
 const styles = StyleSheet.create({
     primaryContainer: {
@@ -311,7 +540,7 @@ const styles = StyleSheet.create({
     headingSection: {
         width: '100%',
         height: '100%',
-        backgroundColor: '#e5b700',
+        backgroundColor: variables.primaryYellow,
         justifyContent: 'center',
         alignItems: 'center',
 
@@ -326,11 +555,12 @@ const styles = StyleSheet.create({
         width: '90%',
         borderRadius: 35 ,
         paddingHorizontal:15,
-        margin: 10,
+        marginHorizontal: 10,
+        marginTop: 5,
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#b38f00',
+        backgroundColor: variables.primaryYellowDark,
         borderColor: '#000',
     },
     textInputStyle: {
@@ -356,7 +586,7 @@ const styles = StyleSheet.create({
         // position: 'relative',
     },
     yellowHR: {
-        borderBottomColor: '#e5b700',
+        borderBottomColor: variables.primaryYellow,
         borderBottomWidth: 1,
         marginHorizontal: 10,
         marginVertical: 5
@@ -369,7 +599,7 @@ const styles = StyleSheet.create({
         marginTop: 5,
         marginBottom: 10,
         marginLeft: 10,
-        color: '#b38f00',
+        color: variables.primaryYellowDark,
         fontWeight: 'bold',
         fontSize: 30,
     },
@@ -380,7 +610,7 @@ const styles = StyleSheet.create({
         borderBottomRightRadius: 25,
     },
     cardTitleArea: {
-        backgroundColor: '#e5b700',
+        backgroundColor: variables.primaryYellow,
     },
     cardTitle: {
         color: 'white',
@@ -403,12 +633,12 @@ const styles = StyleSheet.create({
         marginVertical: 5
     },
     productPrice: {
-        color: '#e5b700',
+        color: variables.primaryYellow,
         fontSize: 18,
         marginRight: '72%',
     },
     productPriceAmount: {
-        color: '#b38f00',
+        color: variables.primaryYellow,
         fontSize: 25,
         fontWeight: 'bold',
     },
@@ -419,7 +649,7 @@ const styles = StyleSheet.create({
         marginTop: 25,
         marginBottom: 10,
         marginLeft: 10,
-        color: '#b38f00',
+        color: variables.primaryYellowDark,
         fontWeight: 'bold',
         fontSize: 30,
     },
@@ -442,6 +672,69 @@ const styles = StyleSheet.create({
     loadingSpinner: {
         marginVertical: 45,
         marginHorizontal: '38%'
+    },
+    // Categories modal
+    // Title section
+    modalTitleSection: {
+        height: '10%',
+    },
+    modalTitleFlex: {
+        flex: 1,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        paddingHorizontal: 10,
+        backgroundColor: variables.primaryYellowOpacity,
+    },
+    modalTitle: {
+        marginTop: 15,
+        color: variables.primaryLight,
+        fontWeight: 'bold',
+        fontSize: 25,
+    },
+    modalCloseIcon: {
+        marginTop: 15,
+    },
+    modalHR: {
+        borderBottomColor: variables.primaryYellowDark,
+        borderBottomWidth: 1,
+        marginHorizontal: 10,
+        marginBottom: 10
+    },
+    categoriesPane: {
+        backgroundColor: variables.primaryYellowOpacity,
+        height: '80%'
+    },
+    categoriesPaneFooter: {
+        flex: 1,
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: variables.primaryYellow
+    },
+    checkboxText: {
+        color: variables.primaryLight,
+        fontWeight: 'normal',
+        fontSize: 20,
+    },
+    categoriesPaneFooterText: {
+        fontSize: 15,
+        color: 'white',
+    },
+    // No Categories selected text
+    noCategoriesTextSection: {
+        flex: 1,
+        flexDirection: 'column',
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+    },
+    noCategoriesText: {
+        marginTop: 15,
+        marginLeft: 15,
+        fontSize: 25,
+        color: variables.primaryYellow,
+        fontWeight: 'bold',
     }
+
 });
 
+export default Home;

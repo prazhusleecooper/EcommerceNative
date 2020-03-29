@@ -1,12 +1,14 @@
+if(__DEV__) {
+    import('./ReactotronConfig').then(() => console.log('Reactotron Configured'))
+}
 import React from 'react';
 import { StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 
-
-import { Home } from './screens/Home';
-import { Cart } from './screens/Cart';
+import Home from './screens/Home';
+import Cart from './screens/Cart';
 
 const Tabs = createMaterialBottomTabNavigator();
 
@@ -29,6 +31,7 @@ export default App = () => {
             activeColor="#f0edf6"
             inactiveColor="#665205"
             barStyle={tabBarStyles.barStyle}
+            onIndexChange
         >
             <Tabs.Screen
                 name='Home'
@@ -54,3 +57,10 @@ const tabBarStyles = StyleSheet.create({
         backgroundColor: '#e5b700',
     }
 });
+
+const mapStateToProps = (state) => {
+    return {
+        addedItems: state.addedItems
+    }
+};
+
