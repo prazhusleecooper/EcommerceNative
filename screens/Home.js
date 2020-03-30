@@ -198,7 +198,7 @@ class Home extends Component{
                                             mode='contained'
                                             color='#e5b700'
                                             dark={true}
-                                            onPress={() => this.addTocart(item)}
+                                            onPress={() => this.addToCart(item)}
                                         >
                                             Add
                                         </Button>
@@ -256,7 +256,7 @@ class Home extends Component{
             );
         }
     };
-    
+
     // Non-rendering methods
     // Method to set the current category while rendering the categories and the products
     setCurrentCategory = (categoryName) => {
@@ -306,11 +306,7 @@ class Home extends Component{
     };
 
     // Add the item to ASYNC storage
-    addTocart = (item) => {
-        this.popup.show({
-            onPress: function() {console.log('Pressed')},
-            slideOutTime: 5000
-        });
+    addToCart = (item) => {
         console.log('THE ADDED ITssEM IS::', SyncStorage.get('cartItems'));
         let syncStorageItems = SyncStorage.get('cartItems');
         if( syncStorageItems === undefined ||

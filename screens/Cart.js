@@ -296,8 +296,18 @@ class Cart extends Component {
     // _________________________________________________________________________________________________________________
 
     // Component Life-cycle methods
-    componentDidMount = async () => {
+    // Component Did Mount method
+    componentDidMount = () => {
+        // This is to refresh the state of the Cart component when it is clicked (When it comes into focus)
+        this._unsubscribe = this.props.navigation.addListener('focus', () => {
+            console.log('##########   CART FOCUSED   ##########');
+            this.handleRefresh();
+        });
+    };
 
+    // Component Will Unmount method
+    componentWillUnmount = () => {
+        this._unsubscribe();
     };
 
     // _________________________________________________________________________________________________________________
