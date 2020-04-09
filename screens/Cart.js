@@ -29,6 +29,7 @@ class Cart extends Component {
             cartEmptyRefreshing: false
         };
         console.log('CART CONSTRUCTOR++++++++++++++++++++++', SyncStorage.get('cartItems'));
+        this.auth();
         this.getCartItems();
 
     }
@@ -40,16 +41,12 @@ class Cart extends Component {
         console.log('+++++++++++++++SYNC STORAGE ITEMS ARE+++++++::::', syncStorageItems);
         if(
             syncStorageItems === undefined ||
-            syncStorageItems === null ||
-            syncStorageItems === [] ||
-            syncStorageItems.length === 0
+            syncStorageItems === []
         ) {
             this.state.cartItems = [];
         } else if(
             syncStorageItems !== undefined ||
-            syncStorageItems !== null ||
-            syncStorageItems !== [] ||
-            syncStorageItems.length > 0
+            syncStorageItems !== []
         ) {
             this.state.cartItems = syncStorageItems;
         }
@@ -133,6 +130,18 @@ class Cart extends Component {
         SyncStorage.set('cartItems', tempArray);
     };
 
+    // Authentication method
+    auth = () => {
+        let tokenFromStorage = SyncStorage.get('TOKEN');
+        console.log('TOKEN FROM STORAGE:::::::::', tokenFromStorage);
+        if(
+            tokenFromStorage === undefined
+        ) {
+            this.props.navigation.navigate('SignIn');
+        }
+    };
+
+
     // _________________________________________________________________________________________________________________
 
     // Rendering methods
@@ -166,6 +175,7 @@ class Cart extends Component {
                 </SafeAreaView>
             )
         } else if(this.state.cartItems !== [] || this.state.cartItems.length !== 0) {
+            console.log('++++ THE CART ITEMS +++', this.state.cartItems);
             return (
                 <SafeAreaView>
                     <FlatList

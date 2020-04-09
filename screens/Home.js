@@ -28,6 +28,9 @@ class Home extends Component{
             checked: true,
             refreshing: false
         };
+        console.log('LOGGGGGGGG++++++++++++++++++++++++++++++++++++', SyncStorage.get('TOKEN'));
+        this.auth();
+        SyncStorage.set('cartItems', []);
     }
 
     // Method to handle refresh
@@ -307,21 +310,18 @@ class Home extends Component{
 
     // Add the item to ASYNC storage
     addToCart = (item) => {
-        console.log('THE ADDED ITssEM IS::', SyncStorage.get('cartItems'));
         let syncStorageItems = SyncStorage.get('cartItems');
+        console.log('SUUUUUUUUUUUUUUN ITEMS::', syncStorageItems);
+
         if( syncStorageItems === undefined ||
-            syncStorageItems === null ||
-            syncStorageItems === [] ||
-            syncStorageItems.length === 0
+            syncStorageItems === []
         ) {
             let tempArray = [];
             tempArray.push(item);
             SyncStorage.set('cartItems', tempArray);
         } else if(
             syncStorageItems !== undefined ||
-            syncStorageItems !== null ||
-            syncStorageItems !== [] ||
-            syncStorageItems.length > 0
+            syncStorageItems !== []
         ) {
             let presence = false;
             syncStorageItems.map((cartItem) => {
@@ -337,6 +337,11 @@ class Home extends Component{
             SyncStorage.set('cartItems', syncStorageItems);
         }
         console.log('UPDATED CART IS::::++++:::++++::::', SyncStorage.get('cartItems'));
+
+
+
+
+
         /*if (cartAsyncArr === null || cartAsyncArr.length === 0) {
             let tempArray = [];
             tempArray.push(item);
@@ -357,6 +362,18 @@ class Home extends Component{
         }
         console.log('GET THE VALUE', SyncStorage.get('cartItems'));*/
     };
+
+    // Authentication method
+    auth = () => {
+        let tokenFromStorage = SyncStorage.get('TOKEN');
+        console.log('TOKEN FROM STORAGE:::::::::', tokenFromStorage);
+        if(
+            tokenFromStorage === undefined
+        ) {
+            this.props.navigation.navigate('SignIn');
+        }
+    };
+
 
     // Life-cycle methods
     componentDidMount = async () => {
